@@ -18,9 +18,13 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     return json.loads(suggestions)
 
 
-def interact_with_gpt(snapshot: str) -> str:
+def interact_with_gpt(snapshot: str, prompt: str) -> str:
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": f"{prompt}",
+        },
         {
             "role": "user",
             "content": f"Here's the repo snapshot: {snapshot}. Suggest some changes in JSON format. Supported mutations are 'add', 'modify', and 'delete' for files, and 'delete' for empty directories only.",
