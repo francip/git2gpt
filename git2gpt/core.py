@@ -26,16 +26,9 @@ def get_tracked_files(repo_path: str) -> List[str]:
 
 def apply_gpt_mutations(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
     os.chdir(repo_path)
-    tracked_files = get_tracked_files(repo_path)
-
     for mutation in mutations:
         action = mutation["action"]
         file_path = mutation["file_path"]
-
-        if file_path not in tracked_files:
-            print(f"Skipping mutation for untracked file: {file_path}")
-            continue
-
         if action == "add":
             with open(file_path, "w") as f:
                 f.write(mutation["content"])
@@ -46,7 +39,12 @@ def apply_gpt_mutations(repo_path: str, mutations: List[Dict[str, Any]]) -> None
             if os.path.isfile(file_path):
                 os.remove(file_path)
             elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
+                try:
+                    os.rmdir(file_path)
+                except OSError as e:
+                    print(
+                        f"Error while trying to remove the directory {file_path}: {e}"
+                    )
 
 
 def commit_changes(repo_path: str, commit_message: str) -> None:
