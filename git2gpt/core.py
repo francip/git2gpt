@@ -9,10 +9,24 @@ def get_repo_snapshot(repo_path: str) -> str:
 
 
 def apply_gpt_mutations(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
-    # Implement the function to apply mutations to the repository
-    pass
+    os.chdir(repo_path)
+    for mutation in mutations:
+        action = mutation["action"]
+        file_path = mutation["file_path"]
+        if action == "add":
+            with open(file_path, "w") as f:
+                f.write(mutation["content"])
+        elif action == "modify":
+            with open(file_path, "w") as f:
+                f.write(mutation["content"])
+        elif action == "delete":
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
 
 def commit_changes(repo_path: str, commit_message: str) -> None:
-    # Implement the function to commit changes
-    pass
+    os.chdir(repo_path)
+    subprocess.run(["git", "add", "."])
+    subprocess.run(["git", "commit", "-m", commit_message])
