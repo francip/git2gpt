@@ -8,26 +8,43 @@ from typing import List, Dict, Any
 from gpt4_interface import get_gpt4_suggestions
 from git2gpt.core import (
     get_repo_snapshot,
-    apply_gpt_mutations,
     commit_changes,
     get_file_diff,
 )
 
 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
-    return json.loads(suggestions)
+    # If there is a section that is wrapped in ```, extract it and treat it as json.
+    if "```" in suggestions:
+        suggestions = suggestions.split("```")[1]
+        if suggestions.startswith("json"):
+            suggestions = suggestions[4:]
+    try:
+        mutations = json.loads(suggestions)
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse JSON: {e}")
+        print(f"Invalid suggestions: {suggestions}")
+        raise
+    return mutations
 
 
 def interact_with_gpt(snapshot: str, prompt: str) -> str:
     messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
         {
-            "role": "user",
-            "content": f"{prompt}",
+            "role": "system",
+            "content": "You are an impressive and thorough software development assistant. You reply only in JSON. Here is a snapshot of a repository: {snapshot}",
+        },
+        {
+            "role": "system",
+            "content": """Respond to the user's request with a list of mutations to apply to the repository, using the following JSON format.
+
+Each mutation in the list must include an action, a file_path, and a content (for insert and update operations). The action can be one of the following strings: 'add', 'modify', 'delete'.
+It is extremely important that you do not reply in any way but with an exact JSON string. Do not supply markup or any explanations outside of the code itself.
+""",
         },
         {
             "role": "user",
-            "content": f"Here's the repo snapshot: {snapshot}. Suggest some changes in JSON format. Supported mutations are 'add', 'modify', and 'delete' for files, and 'delete' for empty directories only.",
+            "content": "Update the repostiory with the following changes: {prompt}",
         },
     ]
     return get_gpt4_suggestions(messages)
