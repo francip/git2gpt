@@ -1,9 +1,9 @@
 import os
 import subprocess
+import difflib
 from typing import List, Dict, Any
 from git2gpt.git_to_json import git_archive_to_json
 import shutil
-import difflib
 
 
 def get_file_diff(original_content: str, mutated_content: str) -> List[str]:
