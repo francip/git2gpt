@@ -72,11 +72,25 @@ def main():
         action="store_true",
         help="Ask a question about the code, rather than modify it",
     )
+    parser.add_argument(
+        "--tmpfile",
+        action="store_true",
+        help="Open a temporary file with the user's preferred $EDITOR for providing the prompt",
+    )
     args = parser.parse_args()
 
     repo_path = args.repo
     prompt = args.prompt
     ask_question = args.ask
+
+    if args.tmpfile:
+        import tempfile
+        import subprocess
+        editor = os.environ.get('EDITOR', 'vim')
+        with tempfile.NamedTemporaryFile(suffix='.txt') as tmp:
+            subprocess.call([editor, tmp.name])
+            tmp.seek(0)
+            prompt = tmp.read().decode('utf-8').strip()
 
     try:
         snapshot = get_repo_snapshot(repo_path)
