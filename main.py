@@ -20,7 +20,7 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     return mutations
 
 
-def interact_with_gpt(snapshot: str, prompt: str) -> str:
+def interact_with_gpt(snapshot: str, prompt: str, question: bool = False) -> str:
     messages = [
         {
             "role": "system",
@@ -36,7 +36,7 @@ It is extremely important that you do not reply in any way but with an exact JSO
         },
         {
             "role": "user",
-            "content": f"Update the repostiory with the following changes: {prompt}",
+            "content": f"Update the repostiory with the following changes: {prompt}" if not question else f"Ask a question about the code: {prompt}"
         },
     ]
     return get_gpt4_suggestions(messages)
@@ -63,7 +63,7 @@ def display_diff(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Modify a git repo using GPT-4 suggestions."
+        description="Modify a git repo using GPT-4 suggestions or ask a question about the code."
     )
     parser.add_argument(
         "prompt", type=str, help="User prompt for specific desired changes"
@@ -72,6 +72,11 @@ def main():
         "--repo",
         default=".",
         help="Path to the git repository (default: current directory)",
+    )
+    parser.add_argument(
+        "--ask",
+        action="store_true",
+        help="Ask a question about the code, rather than modify it",
     )
     parser.add_argument(
         "--no-diff",
@@ -87,29 +92,34 @@ def main():
 
     repo_path = args.repo
     prompt = args.prompt
+    ask_question = args.ask
     show_diff = not args.no_diff
     skip_commit = args.skip_commit
 
     try:
         snapshot = get_repo_snapshot(repo_path)
-        suggestions = interact_with_gpt(snapshot, prompt)
-        mutations = extract_mutations(suggestions)
+        suggestions = interact_with_gpt(snapshot, prompt, question=ask_question)
 
-        if show_diff:
-            from pygments import highlight
-            from pygments.lexers import DiffLexer
-            from pygments.formatters import TerminalFormatter
-            print("Proposed changes:")
-            display_diff(repo_path, mutations)
-            confirm = input("Do you want to apply these changes? [y/N]: ").lower()
-            if confirm != "y":
-                print("Aborted. No changes were applied.")
-                sys.exit(0)
+        if ask_question:
+            print(f'Answer: {suggestions}')
+        else:
+            mutations = extract_mutations(suggestions)
 
-        apply_gpt_mutations(repo_path, mutations)
-        if not skip_commit:
-            from git2gpt.core import commit_changes
-            commit_changes(repo_path, f'Applying changes: {prompt}')
+            if show_diff:
+                from pygments import highlight
+                from pygments.lexers import DiffLexer
+                from pygments.formatters import TerminalFormatter
+                print("Proposed changes:")
+                display_diff(repo_path, mutations)
+                confirm = input("Do you want to apply these changes? [y/N]: ").lower()
+                if confirm != "y":
+                    print("Aborted. No changes were applied.")
+                    sys.exit(0)
+
+            apply_gpt_mutations(repo_path, mutations)
+            if not skip_commit:
+                from git2gpt.core import commit_changes
+                commit_changes(repo_path, f'Applying changes: {prompt}')
     except Exception as e:
         print(f"An error occurred: {e}")
 
