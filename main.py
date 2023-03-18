@@ -7,6 +7,7 @@ import sys
 from typing import List, Dict, Any
 from gpt4_interface import get_gpt4_suggestions
 from git2gpt.core import (
+    apply_gpt_mutations,
     get_repo_snapshot,
     commit_changes,
     get_file_diff,
@@ -17,8 +18,7 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     # If there is a section that is wrapped in ```, extract it and treat it as json.
     if "```" in suggestions:
         suggestions = suggestions.split("```")[1]
-        if suggestions.startswith("json"):
-            suggestions = suggestions[4:]
+        suggestions = suggestions[5:] # strip the "\njson"
     try:
         mutations = json.loads(suggestions)
     except json.JSONDecodeError as e:
@@ -32,7 +32,7 @@ def interact_with_gpt(snapshot: str, prompt: str) -> str:
     messages = [
         {
             "role": "system",
-            "content": "You are an impressive and thorough software development assistant. You reply only in JSON. Here is a snapshot of a repository: {snapshot}",
+            "content": f"You are an impressive and thorough software development assistant. You reply only in JSON. Here is a snapshot of a repository: {snapshot}",
         },
         {
             "role": "system",
@@ -44,7 +44,7 @@ It is extremely important that you do not reply in any way but with an exact JSO
         },
         {
             "role": "user",
-            "content": "Update the repostiory with the following changes: {prompt}",
+            "content": f"Update the repostiory with the following changes: {prompt}",
         },
     ]
     return get_gpt4_suggestions(messages)
