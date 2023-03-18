@@ -5,7 +5,7 @@ import os
 import sys
 from typing import List, Dict, Any
 from gpt4_interface import get_gpt4_suggestions
-from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, get_tracked_files
+from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, get_tracked_files, commit_changes
 
 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
@@ -82,6 +82,11 @@ def main():
             mutations = extract_mutations(suggestions)
             apply_gpt_mutations(repo_path, mutations)
             display_diff(repo_path)
+            decision = input("Do you want to keep the changes? (yes/no): ")
+            if decision.lower() == 'yes':
+                commit_changes(repo_path, f"Applied changes from prompt: {prompt}")
+            else:
+                print("No changes will be committed.")
 
     except Exception as e:
         print(f"An error occurred: {e}")
