@@ -32,15 +32,19 @@ def apply_gpt_mutations(repo_path: str, mutations: List[Dict[str, Any]]) -> None
         if action == "add":
             with open(file_path, "w") as f:
                 f.write(mutation["content"])
+            subprocess.run(["git", "add", file_path])
         elif action == "modify":
             with open(file_path, "w") as f:
                 f.write(mutation["content"])
+            subprocess.run(["git", "add", file_path])
         elif action == "delete":
             if os.path.isfile(file_path):
                 os.remove(file_path)
+                subprocess.run(["git", "rm", file_path])
             elif os.path.isdir(file_path):
                 try:
                     os.rmdir(file_path)
+                    subprocess.run(["git", "rm", "-rf", file_path])
                 except OSError as e:
                     print(
                         f"Error while trying to remove the directory {file_path}: {e}"
