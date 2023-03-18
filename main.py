@@ -76,7 +76,7 @@ def main():
         help="Ask a question about the code, rather than modify it",
     )
     parser.add_argument(
-        "--tmpfile",
+        "--editor",
         action="store_true",
         help="Open a temporary file with the user's preferred $EDITOR for providing the prompt",
     )
@@ -86,7 +86,7 @@ def main():
     prompt = args.prompt
     ask_question = args.ask
 
-    if args.tmpfile:
+    if args.editor:
         import tempfile
         import subprocess
         editor = os.environ.get('EDITOR', 'vim')
@@ -96,7 +96,7 @@ def main():
             prompt = tmp.read().decode('utf-8').strip()
 
     if not prompt:
-        print('Error: No prompt provided. Please provide a prompt using --prompt or --tmpfile.')
+        print('Error: No prompt provided. Please provide a prompt using --prompt or --editor.')
         sys.exit(1)
 
     try:
