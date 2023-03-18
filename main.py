@@ -60,7 +60,10 @@ def main():
         description="Modify a git repo using GPT-4 suggestions or ask a question about the code."
     )
     parser.add_argument(
-        "prompt", type=str, help="User prompt for specific desired changes"
+        "--prompt",
+        type=str,
+        required=False,
+        help="User prompt for specific desired changes"
     )
     parser.add_argument(
         "--repo",
@@ -91,6 +94,10 @@ def main():
             subprocess.call([editor, tmp.name])
             tmp.seek(0)
             prompt = tmp.read().decode('utf-8').strip()
+
+    if not prompt:
+        print('Error: No prompt provided. Please provide a prompt using --prompt or --tmpfile.')
+        sys.exit(1)
 
     try:
         snapshot = get_repo_snapshot(repo_path)
