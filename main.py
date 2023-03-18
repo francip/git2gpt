@@ -46,7 +46,7 @@ def display_diff(repo_path: str) -> None:
     tracked_files = get_tracked_files(repo_path)
     os.chdir(repo_path)
     for file in tracked_files:
-        os.system(f'git diff HEAD -- {file}')
+        os.system(f'git diff --staged -- {file}')
 
 
 def main():
