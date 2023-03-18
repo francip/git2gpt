@@ -47,9 +47,6 @@ def display_diff(repo_path: str) -> None:
     os.chdir(repo_path)
     for file in tracked_files:
         os.system(f'git diff HEAD -- {file}')
-    untracked_files = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard']).decode('utf-8').splitlines()
-    for untracked_file in untracked_files:
-        print(f'Untracked file: {untracked_file}')
 
 
 def main():
