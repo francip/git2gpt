@@ -11,6 +11,9 @@ from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     if suggestions.startswith("```"):
         suggestions = suggestions[8:-3] # strip the "```json\n" and "```"
+    # gpt-4 seems to sometimes embed line feeds in json strings, which is illegal and breaks the parser.
+    # this is a hack to avoid that by removing all linefeeds.
+    suggestions = suggestions.strip("\n")
     try:
         mutations = json.loads(suggestions)
     except json.JSONDecodeError as e:
