@@ -25,7 +25,7 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     return mutations
 
 
-def interact_with_gpt(snapshot: str, ask_question: bool, prompt: str) -> str:
+def interact_with_gpt(snapshot: str, prompt: str) -> str:
     messages = [
         {
             "role": "system",
@@ -39,22 +39,30 @@ Each mutation in the list must include an action, a file_path, and a content (fo
 It is extremely important that you do not reply in any way but with an exact JSON string. Do not supply markup or any explanations outside of the code itself.
 """,
         },
+        {
+            "role": "user",
+            "content": f"Update the repostiory with the following changes: {prompt}",
+        },
     ]
-    if ask_question:
-        messages.append(
-            {
-                "role": "user",
-                "content": f"Answer the following question about the code: {prompt}",
-            }
-        )
-    else:
-        messages.append(
-            {
-                "role": "user",
-                "content": f"Update the repostiory with the following changes: {prompt}",
-            }
-        )
     return get_gpt4_suggestions(messages)
+
+
+def display_diff(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
+    for mutation in mutations:
+        file_path = mutation["file_path"]
+        original_path = os.path.join(repo_path, file_path)
+        original_content = ""
+        if os.path.exists(original_path):
+            with open(original_path, "r") as f:
+                original_content = f.read()
+        mutated_content = mutation.get("content", "")
+        diff = list(
+            difflib.unified_diff(
+                original_content.splitlines(), mutated_content.splitlines()
+            )
+        )
+        if diff:
+            sys.stdout.writelines(line + "\n" for line in diff)
 
 
 def main():
@@ -62,17 +70,12 @@ def main():
         description="Modify a git repo using GPT-4 suggestions."
     )
     parser.add_argument(
-        "prompt", type=str, help="User prompt for specific desired changes or question"
+        "prompt", type=str, help="User prompt for specific desired changes"
     )
     parser.add_argument(
         "--repo",
         default=".",
         help="Path to the git repository (default: current directory)",
-    )
-    parser.add_argument(
-        "--ask",
-        action="store_true",
-        help="Enable ask mode to ask questions about the code instead of modifying it",
     )
     parser.add_argument(
         "--no-diff",
@@ -84,25 +87,21 @@ def main():
     repo_path = args.repo
     prompt = args.prompt
     show_diff = not args.no_diff
-    ask_question = args.ask
 
     try:
         snapshot = get_repo_snapshot(repo_path)
-        suggestions = interact_with_gpt(snapshot, ask_question, prompt)
-        if ask_question:
-            print(suggestions)
-        else:
-            mutations = extract_mutations(suggestions)
+        suggestions = interact_with_gpt(snapshot, prompt)
+        mutations = extract_mutations(suggestions)
 
-            if show_diff:
-                print("Proposed changes:")
-                display_diff(repo_path, mutations)
-                confirm = input("Do you want to apply these changes? [y/N]: ").lower()
-                if confirm != "y":
-                    print("Aborted. No changes were applied.")
-                    sys.exit(0)
+        if show_diff:
+            print("Proposed changes:")
+            display_diff(repo_path, mutations)
+            confirm = input("Do you want to apply these changes? [y/N]: ").lower()
+            if confirm != "y":
+                print("Aborted. No changes were applied.")
+                sys.exit(0)
 
-            apply_gpt_mutations(repo_path, mutations)
+        apply_gpt_mutations(repo_path, mutations)
     except Exception as e:
         print(f"An error occurred: {e}")
 
