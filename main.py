@@ -5,7 +5,7 @@ import os
 import sys
 from typing import List, Dict, Any
 from gpt4_interface import get_gpt4_suggestions
-from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff
+from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, get_tracked_files
 
 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
@@ -42,23 +42,11 @@ It is extremely important that you do not reply in any way but with an exact JSO
     return get_gpt4_suggestions(messages)
 
 
-def display_diff(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
-    for mutation in mutations:
-        file_path = mutation["file_path"]
-        original_path = os.path.join(repo_path, file_path)
-        original_content = ""
-        if os.path.exists(original_path):
-            with open(original_path, "r") as f:
-                original_content = f.read()
-        mutated_content = mutation.get("content", "")
-        diff = list(
-            difflib.unified_diff(
-                original_content.splitlines(), mutated_content.splitlines()
-            )
-        )
-        if diff:
-            print(f'\nDiff for {file_path}:')
-            sys.stdout.writelines(line + "\n" for line in diff)
+def display_diff(repo_path: str) -> None:
+    tracked_files = get_tracked_files(repo_path)
+    os.chdir(repo_path)
+    for file in tracked_files:
+        os.system(f'git diff HEAD -- {file}')
 
 
 def main():
@@ -78,23 +66,11 @@ def main():
         action="store_true",
         help="Ask a question about the code, rather than modify it",
     )
-    parser.add_argument(
-        "--no-diff",
-        action="store_true",
-        help="Disable showing the diff before committing changes",
-    )
-    parser.add_argument(
-        "--skip-commit",
-        action="store_true",
-        help="Skip committing the changes to the repository",
-    )
     args = parser.parse_args()
 
     repo_path = args.repo
     prompt = args.prompt
     ask_question = args.ask
-    show_diff = not args.no_diff
-    skip_commit = args.skip_commit
 
     try:
         snapshot = get_repo_snapshot(repo_path)
@@ -104,22 +80,9 @@ def main():
             print(f'Answer: {suggestions}')
         else:
             mutations = extract_mutations(suggestions)
-
-            if show_diff:
-                from pygments import highlight
-                from pygments.lexers import DiffLexer
-                from pygments.formatters import TerminalFormatter
-                print("Proposed changes:")
-                display_diff(repo_path, mutations)
-                confirm = input("Do you want to apply these changes? [y/N]: ").lower()
-                if confirm != "y":
-                    print("Aborted. No changes were applied.")
-                    sys.exit(0)
-
             apply_gpt_mutations(repo_path, mutations)
-            if not skip_commit:
-                from git2gpt.core import commit_changes
-                commit_changes(repo_path, f'Applying changes: {prompt}')
+            display_diff(repo_path)
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
