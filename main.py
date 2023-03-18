@@ -101,6 +101,9 @@ def main():
         mutations = extract_mutations(suggestions)
 
         if show_diff:
+            from pygments import highlight
+            from pygments.lexers import DiffLexer
+            from pygments.formatters import TerminalFormatter
             print("Proposed changes:")
             display_diff(repo_path, mutations)
             confirm = input("Do you want to apply these changes? [y/N]: ").lower()
