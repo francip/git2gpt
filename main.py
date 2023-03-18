@@ -62,6 +62,7 @@ def display_diff(repo_path: str, mutations: List[Dict[str, Any]]) -> None:
             )
         )
         if diff:
+            print(f'\nDiff for {file_path}:')
             sys.stdout.writelines(line + "\n" for line in diff)
 
 
