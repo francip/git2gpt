@@ -82,8 +82,8 @@ def main():
             mutations = extract_mutations(suggestions)
             apply_gpt_mutations(repo_path, mutations)
             display_diff(repo_path)
-            decision = input("Do you want to keep the changes? (yes/no): ")
-            if decision.lower() == 'yes':
+            decision = input("Do you want to keep the changes? (y/n): ")
+            if decision.lower() == 'y':
                 commit_changes(repo_path, f"Applied changes from prompt: {prompt}")
             else:
                 print("No changes will be committed.")
