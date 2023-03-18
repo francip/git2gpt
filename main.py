@@ -87,6 +87,8 @@ def main():
                 commit_changes(repo_path, f"Applied changes from prompt: {prompt}")
             else:
                 print("No changes will be committed.")
+                print("To discard the changes, run the following git command:")
+                print("    git reset --hard HEAD")
 
     except Exception as e:
         print(f"An error occurred: {e}")
