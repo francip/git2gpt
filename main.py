@@ -9,7 +9,6 @@ from gpt4_interface import get_gpt4_suggestions
 from git2gpt.core import (
     apply_gpt_mutations,
     get_repo_snapshot,
-    commit_changes,
     get_file_diff,
 )
 
@@ -103,8 +102,6 @@ def main():
                 sys.exit(0)
 
         apply_gpt_mutations(repo_path, mutations)
-        commit_changes(repo_path, f"Applied GPT-4 suggested changes: {prompt}")
-
     except Exception as e:
         print(f"An error occurred: {e}")
 
