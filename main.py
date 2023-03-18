@@ -15,10 +15,8 @@ from git2gpt.core import (
 
 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
-    # If there is a section that is wrapped in ```, extract it and treat it as json.
-    if "```" in suggestions:
-        suggestions = suggestions.split("```")[1]
-        suggestions = suggestions[5:] # strip the "\njson"
+    if suggestions.startswith("```"):
+        suggestions = suggestions[8:-3] # strip the "```json\n" and "```"
     try:
         mutations = json.loads(suggestions)
     except json.JSONDecodeError as e:
