@@ -82,11 +82,17 @@ def main():
         action="store_true",
         help="Disable showing the diff before committing changes",
     )
+    parser.add_argument(
+        "--skip-commit",
+        action="store_true",
+        help="Skip committing the changes to the repository",
+    )
     args = parser.parse_args()
 
     repo_path = args.repo
     prompt = args.prompt
     show_diff = not args.no_diff
+    skip_commit = args.skip_commit
 
     try:
         snapshot = get_repo_snapshot(repo_path)
@@ -102,6 +108,9 @@ def main():
                 sys.exit(0)
 
         apply_gpt_mutations(repo_path, mutations)
+        if not skip_commit:
+            from git2gpt.core import commit_changes
+            commit_changes(repo_path, f'Applying changes: {prompt}')
     except Exception as e:
         print(f"An error occurred: {e}")
 
