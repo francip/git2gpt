@@ -15,7 +15,10 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
         mutations = json.loads(suggestions)
     except json.JSONDecodeError as e:
         print(f"Failed to parse JSON: {e}")
-        print(f"Invalid suggestions: {suggestions}")
+        tempfile = 'error_log.json'
+        with open(tempfile, 'w') as f:
+            f.write(suggestions)
+        print(f'Invalid suggestions saved to {tempfile} for debugging.')
         raise
     return mutations
 
