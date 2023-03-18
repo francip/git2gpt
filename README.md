@@ -10,7 +10,7 @@ This repository is an experiment at bootstrapping prompt-driven self-modifying s
 
 Note that while this was initially an experiment in self-modifying code, git2gpt will generate prompt-driven changes for any repo you lying around, which you can specify with the --repo flag, though be aware of the context size limits you have available.
 
-## Usage:
+## Contributing
 
 0. Optionally: create and activate a virtualenv
    `python3 -m venv env`
@@ -20,7 +20,19 @@ Note that while this was initially an experiment in self-modifying code, git2gpt
 2. Set up your OpenAI API key:
    `echo "OPENAI_API_KEY=your_key_here" > .env`
 3. Run the main script:
-   `python main.py <prompt to modify the code>`
+   `python main.py --prompt <prompt to modify the code>`
+4. Or, install the package in editable mode `pip install -e .` and use the `git2gpt` command.
+
+## Usage:
+
+1. To modify other software, you can install git2gpt into your environment like this:
+  `pip install git+https://github.com/karnagraha/git2gpt`
+2. Set your openai key:
+  `export OPENAI_API_KEY=<your key>`
+3. Change into your repo, and create your first commit `cd somerepo ; git2gpt --prompt "add a TODO.md file"`
+
+Instead of specifying the prompt on the commandline, you can also call `git2gpt --editor` to open your default $EDITOR to use while crafting the prompt.
+
 
 ### Building
 
