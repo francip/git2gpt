@@ -62,10 +62,13 @@ def get_gpt4_suggestions(messages):
     completion_cost = completion_tokens * cost_per_completion_token
     total_cost = prompt_cost + completion_cost
 
+    total_tokens = prompt_tokens + completion_tokens
+
     print(f'Time taken for the API call: {time_taken:.2f} seconds')
     print(f'{prompt_tokens} prompt tokens used. Cost: ${prompt_cost:.6f}')
     print(f'{completion_tokens} completion tokens used. Cost: ${completion_cost:.6f}')
     print(f'Total cost of the API call: ${total_cost:.6f}')
+    print(f'Total tokens used: {total_tokens}')
 
     print(f'Model: {MODEL_NAME}')
     return response["choices"][0]["message"]["content"]
