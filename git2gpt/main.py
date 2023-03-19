@@ -46,6 +46,7 @@ It is extremely important that you do not reply in any way but with an exact JSO
             "content": f"Update the repostiory with the following changes: {prompt}" if not question else f"Ask a question about the code: {prompt}"
         },
     ]
+    print(f'Using prompt: {prompt}')
     return get_gpt4_suggestions(messages)
 
 
