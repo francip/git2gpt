@@ -2,6 +2,7 @@ import argparse
 import difflib
 import json
 import os
+import subprocess
 import sys
 from typing import List, Dict, Any
 from git2gpt.gpt4_interface import get_gpt4_suggestions
