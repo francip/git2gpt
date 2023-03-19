@@ -9,6 +9,7 @@ MODEL_NAME = "gpt-4"
 
 encoding = tiktoken.encoding_for_model(MODEL_NAME)
 
+
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
     """Returns the number of tokens used by a list of messages."""
     try:
@@ -26,11 +27,22 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
     num_tokens += 2  # every reply is primed with <im_start>assistant
     return num_tokens
 
+
 def get_gpt4_suggestions(messages):
+
+    model_cost_per_token = {
+        'gpt-4': {'prompt': 0.03 / 1000, 'completion': 0.06 / 1000},
+        'gpt-4-32k': {'prompt': 0.06 / 1000, 'completion': 0.012 / 1000},
+        'gpt-3.5-turbo': {'prompt': 0.002 / 1000, 'completion': 0.002 / 1000}
+    }
+
     initial_tokens = num_tokens_from_messages(messages, model=MODEL_NAME)
     print(f'Tokens used for the initial request: {initial_tokens}')
     max_tokens = 8192
     avail_tokens = max_tokens - initial_tokens
+
+    cost_per_prompt_token = model_cost_per_token[MODEL_NAME]['prompt']
+    cost_per_completion_token = model_cost_per_token[MODEL_NAME]['completion']
 
     # Record the start time
     start_time = time.time()
@@ -43,9 +55,17 @@ def get_gpt4_suggestions(messages):
 
     # Calculate and print the time taken
     time_taken = time.time() - start_time
+    prompt_tokens = response["usage"]["prompt_tokens"]
+    completion_tokens = response["usage"]["completion_tokens"]
+
+    prompt_cost = prompt_tokens * cost_per_prompt_token
+    completion_cost = completion_tokens * cost_per_completion_token
+    total_cost = prompt_cost + completion_cost
+
     print(f'Time taken for the API call: {time_taken:.2f} seconds')
-    print(f'{response["usage"]["prompt_tokens"]} prompt tokens used.')
+    print(f'{prompt_tokens} prompt tokens used. Cost: ${prompt_cost:.6f}')
+    print(f'{completion_tokens} completion tokens used. Cost: ${completion_cost:.6f}')
+    print(f'Total cost of the API call: ${total_cost:.6f}')
+
     print(f'Model: {MODEL_NAME}')
-    print(f'prompt_tokens: {response["usage"]["prompt_tokens"]}')
-    print(f'completion_tokens: {response["usage"]["completion_tokens"]}')
     return response["choices"][0]["message"]["content"]
