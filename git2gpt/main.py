@@ -27,7 +27,7 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     return mutations
 
 
-def interact_with_gpt(snapshot: str, prompt: str, question: bool = False) -> str:
+def interact_with_gpt(snapshot: str, prompt: str, question: bool = False, temperature: float = 0.7) -> str:
     messages = [
         {
             "role": "system",
@@ -47,7 +47,7 @@ It is extremely important that you do not reply in any way but with an exact JSO
         },
     ]
     print(f'Using prompt: {prompt}')
-    return get_gpt4_suggestions(messages)
+    return get_gpt4_suggestions(messages, temperature=temperature)
 
 
 def display_diff(repo_path: str) -> None:
