@@ -28,7 +28,7 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
     return num_tokens
 
 
-def get_gpt4_suggestions(messages):
+def get_gpt4_suggestions(messages, temperature=0.5):
 
     model_cost_per_token = {
         'gpt-4': {'prompt': 0.03 / 1000, 'completion': 0.06 / 1000},
@@ -51,6 +51,7 @@ def get_gpt4_suggestions(messages):
         model=MODEL_NAME,
         messages=messages,
         max_tokens=avail_tokens,
+        temperature=temperature
     )
 
     # Calculate and print the time taken
