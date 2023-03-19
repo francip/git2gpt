@@ -4,7 +4,7 @@ import json
 import os
 import sys
 from typing import List, Dict, Any
-from gpt4_interface import get_gpt4_suggestions
+from git2gpt.gpt4_interface import get_gpt4_suggestions
 from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, get_tracked_files, commit_changes
 
 
