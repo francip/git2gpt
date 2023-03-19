@@ -11,7 +11,7 @@ from git2gpt.core import apply_gpt_mutations, get_repo_snapshot, get_file_diff, 
 
 def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
     if suggestions.startswith("```"):
-        suggestions = suggestions[8:-3] # strip the "```json\n" and "```"
+        suggestions = suggestions[8:-3]  # strip the "```json\n" and "```"
     # gpt-4 seems to sometimes embed line feeds in json strings, which is illegal and breaks the parser.
     # this is a hack to avoid that by removing all linefeeds.
     suggestions = suggestions.strip("\n")
@@ -129,7 +129,7 @@ def main():
             display_diff(repo_path)
             decision = input("Do you want to keep the changes? (y/n): ")
             if decision.lower() == 'y':
-                commit_changes(repo_path, f"Applied changes from prompt: {prompt}")
+                commit_changes(repo_path, f"git2gpt: {prompt}")
             else:
                 print("No changes will be committed.")
                 print("To discard the changes, run the following git command:")
