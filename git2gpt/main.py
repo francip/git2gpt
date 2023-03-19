@@ -14,7 +14,7 @@ def extract_mutations(suggestions: str) -> List[Dict[str, Any]]:
         suggestions = suggestions[8:-3]  # strip the "```json\n" and "```"
     # gpt-4 seems to sometimes embed line feeds in json strings, which is illegal and breaks the parser.
     # this is a hack to avoid that by removing all linefeeds.
-    suggestions = suggestions.strip("\n")
+    suggestions = suggestions.replace("\n", " ")
     try:
         mutations = json.loads(suggestions)
     except json.JSONDecodeError as e:
