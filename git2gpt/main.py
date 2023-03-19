@@ -55,6 +55,12 @@ def display_diff(repo_path: str) -> None:
         os.system(f'git diff --staged -- {file}')
 
 
+def check_unstaged_changes(repo_path: str) -> bool:
+    os.chdir(repo_path)
+    result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+    return bool(result.stdout.strip())
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Modify a git repo using GPT-4 suggestions or ask a question about the code."
@@ -80,11 +86,17 @@ def main():
         action="store_true",
         help="Open a temporary file with the user's preferred $EDITOR for providing the prompt",
     )
+    parser.add_argument(
+        "-f", "--force",
+        action="store_true",
+        help="Force operation even with unstaged changes",
+    )
     args = parser.parse_args()
 
     repo_path = args.repo
     prompt = args.prompt
     ask_question = args.ask
+    force = args.force
 
     if args.editor:
         import tempfile
@@ -97,6 +109,10 @@ def main():
 
     if not prompt:
         print('Error: No prompt provided. Please provide a prompt using --prompt or --editor.')
+        sys.exit(1)
+
+    if not force and check_unstaged_changes(repo_path):
+        print('Error: Unstaged changes detected. Please commit or stash them before running this script. To force the operation, use -f/--force flag.')
         sys.exit(1)
 
     try:
