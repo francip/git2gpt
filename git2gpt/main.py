@@ -93,12 +93,19 @@ def main():
         action="store_true",
         help="Force operation even with unstaged changes",
     )
+    parser.add_argument(
+        "-t", "--temperature",
+        type=float,
+        default=0.7,
+        help="Specify the temperature for GPT-4 suggestions (default: 0.7)",
+    )
     args = parser.parse_args()
 
     repo_path = args.repo
     prompt = args.prompt
     ask_question = args.ask
     force = args.force
+    temperature = args.temperature
 
     if args.editor:
         import tempfile
@@ -119,7 +126,7 @@ def main():
 
     try:
         snapshot = get_repo_snapshot(repo_path)
-        suggestions = interact_with_gpt(snapshot, prompt, question=ask_question)
+        suggestions = interact_with_gpt(snapshot, prompt, question=ask_question, temperature=temperature)
 
         if ask_question:
             print(f'Answer: {suggestions}')
