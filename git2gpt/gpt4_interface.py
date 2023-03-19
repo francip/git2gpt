@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import tiktoken
+import time
 
 load_dotenv() # this must run before openai is imported
 import openai # this must be loaded after load_dotenv is called
@@ -31,10 +32,18 @@ def get_gpt4_suggestions(messages):
     max_tokens = 8192
     avail_tokens = max_tokens - initial_tokens
 
+    # Record the start time
+    start_time = time.time()
+
     response = openai.ChatCompletion.create(
         model=MODEL_NAME,
         messages=messages,
         max_tokens=avail_tokens,
     )
+
+    # Calculate and print the time taken
+    time_taken = time.time() - start_time
+    print(f'Time taken for the API call: {time_taken:.2f} seconds')
+
     print(f'{response["usage"]["prompt_tokens"]} prompt tokens used.')
     return response["choices"][0]["message"]["content"]
