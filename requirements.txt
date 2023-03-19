@@ -22,7 +22,7 @@ markdown-it-py==2.2.0
 mdurl==0.1.2
 more-itertools==9.1.0
 multidict==6.0.4
-openai==0.27.2
+openai>=0.27.2
 packaging==23.0
 pkginfo==1.9.6
 pluggy==1.0.0
