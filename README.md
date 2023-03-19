@@ -34,6 +34,17 @@ Note that while this was initially an experiment in self-modifying code, git2gpt
 Instead of specifying the prompt on the commandline, you can also call `git2gpt --editor` to open your default $EDITOR to use while crafting the prompt.
 
 
+## Building and Uploading Package
+
+After making any changes to the code, you can build the package and upload it to PyPI by running the provided script:
+
+```
+chmod +x build_and_upload.sh
+./build_and_upload.sh
+```
+
+Make sure you have the `twine` package installed and configured with your PyPI credentials.
+
 ### Building
 
 Building git2gpt using ChatGPT Plus was very straightforward:
