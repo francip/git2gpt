@@ -11,7 +11,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'git2gpt=git2gpt:main'
+            'git2gpt=git2gpt.main:main'
         ]
     }
 )
