@@ -44,6 +44,8 @@ def get_gpt4_suggestions(messages):
     # Calculate and print the time taken
     time_taken = time.time() - start_time
     print(f'Time taken for the API call: {time_taken:.2f} seconds')
-
     print(f'{response["usage"]["prompt_tokens"]} prompt tokens used.')
+    print(f'Model: {MODEL_NAME}')
+    print(f'prompt_tokens: {response["usage"]["prompt_tokens"]}')
+    print(f'completion_tokens: {response["usage"]["completion_tokens"]}')
     return response["choices"][0]["message"]["content"]
